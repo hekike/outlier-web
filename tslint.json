@@ -1,0 +1,10 @@
+{
+  "extends": [
+    "tslint:latest",
+    "tslint-config-prettier"
+  ],
+  "rules": {
+    "indent": [true, "spaces"],
+    "max-line-length": [true, 80]
+  }
+}
