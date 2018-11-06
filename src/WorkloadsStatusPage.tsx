@@ -5,6 +5,7 @@ import WorkloadStatusRow from './WorkloadStatusRow'
 import { IWorkloadStatus } from "./workloadTypes"
 
 import "./WorkloadsStatusPage.css"
+import { stat } from "fs";
 
 interface IProps {
   match: {
@@ -62,7 +63,7 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
                     <td>{startDate}</td>
                     {workload.statuses.map((status) => {
                       const date = moment(status.date).format('h:mm');
-                      return <td>{date}</td>;
+                      return <td key={status.date.toString()}>{date}</td>;
                     })}
                   </tr>
                 </thead>
@@ -71,7 +72,9 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
                 </thead>
                 <tbody>
                   {workload.sources.map((source) =>
-                    <WorkloadStatusRow workload={source} />
+                    <WorkloadStatusRow
+                      key={`source-${source.name}`}
+                      workload={source} />
                   )}
                 </tbody>
                 <thead>
@@ -87,7 +90,9 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
                 </thead>
                 <tbody>
                   {workload.destinations.map((destination) =>
-                    <WorkloadStatusRow workload={destination} />
+                    <WorkloadStatusRow
+                      key={`destination-${destination.name}`}
+                      workload={destination} />
                   )}
                 </tbody>
               </table>
@@ -105,7 +110,7 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
       isLoading: true
     });
 
-    return fetch(`http://localhost:3000/api/v1/workloads/${name}/status`)
+    return fetch(`/api/v1/workloads/${name}/status`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch resource: " + response.statusText);

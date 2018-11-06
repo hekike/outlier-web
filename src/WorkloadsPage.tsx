@@ -44,7 +44,8 @@ class WorkloadsPage extends Component<IProps, IState> {
             {workloads.map((workload) =>
               <Link
                 to={`/workloads/${workload.name}/status`}
-                className="list-group-item list-group-item-action">
+                className="list-group-item list-group-item-action"
+                key={workload.name}>
               {workload.name}
               </Link>
             )}
@@ -60,7 +61,7 @@ class WorkloadsPage extends Component<IProps, IState> {
       isLoading: true
     });
 
-    return fetch('http://localhost:3000/api/v1/workloads')
+    return fetch('/api/v1/workloads')
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch resource: " + response.statusText);

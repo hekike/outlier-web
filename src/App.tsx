@@ -1,13 +1,18 @@
 import React from "react";
-import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  NavLink,
+  Route,
+  Switch
+} from "react-router-dom";
+
+import HomePage from "./HomePage";
+import NotFoundPage from "./NotFoundPage";
 import WorkloadsPage from "./WorkloadsPage";
 import WorkloadsStatusPage from "./WorkloadsStatusPage";
 
 // tslint:disable-next-line
 import "bootstrap/dist/css/bootstrap.css";
-
-const Index = () => <p>Home</p>;
-const NoMatch = () => <p>Not Found</p>;
 
 const AppRouter = () => (
   <Router>
@@ -15,11 +20,26 @@ const AppRouter = () => (
       <nav className="navbar navbar-expand-lg navbar-light bg-light rounded">
         <div className="container">
           <ul className="navbar-nav mr-auto">
+            {/*
             <li className="nav-item">
-              <Link className="nav-link" to="/">Home</Link>
+              <NavLink
+                  exact
+                  to="/"
+                  activeClassName={'active'}
+                  className="nav-link"
+              >
+                Home
+              </NavLink>
             </li>
+            */}
             <li className="nav-item">
-              <Link className="nav-link" to="/workloads/">Workloads</Link>
+              <NavLink
+                to="/workloads"
+                activeClassName={'active'}
+                className="nav-link"
+              >
+                Workloads
+              </NavLink>
             </li>
           </ul>
         </div>
@@ -27,12 +47,12 @@ const AppRouter = () => (
 
       <main className="container">
         <Switch>
-          <Route path="/" exact component={Index} />
+          <Route path="/" exact component={HomePage} />
           <Route path="/workloads/" exact component={WorkloadsPage} />
           <Route
             path="/workloads/:name/status"
             component={WorkloadsStatusPage} />
-          <Route component={NoMatch}/>
+          <Route component={NotFoundPage}/>
         </Switch>
       </main>
 
