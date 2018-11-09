@@ -43,7 +43,6 @@ workflows:
             - build
           filters:
             tags:
-              # SemVer version
-              only: /^v.*/
+              only: /.*/
             branches:
               ignore: /.*/
