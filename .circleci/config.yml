@@ -33,6 +33,6 @@ jobs:
       enabled: true
     steps:
       - checkout
-       - run:
-          name: Deploy to S3
-          command: aws s3 sync build s3://${AWS_S3_BUCKET}/web-dist/${CIRCLE_TAG} --region ${AWS_S3_REGION}
+      - run:
+        name: Deploy to S3
+        command: aws s3 sync build s3://${AWS_S3_BUCKET}/web-dist/${CIRCLE_TAG} --region ${AWS_S3_REGION}
