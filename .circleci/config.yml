@@ -4,6 +4,7 @@ jobs:
   build:
     docker:
       - image: circleci/node:10
+    working_directory: ~/outlier-web
     steps:
       - checkout
       - restore_cache:
@@ -24,6 +25,7 @@ jobs:
   deploy:
     machine:
       enabled: true
+    working_directory: ~/outlier-web
     steps:
       - checkout
       - run:
