@@ -35,7 +35,9 @@ jobs:
           at: /tmp/outlier-web
       - run:
           name: Deploy to S3
-          command: aws s3 sync build s3://${AWS_S3_BUCKET}/web-dist/${CIRCLE_TAG} --region ${AWS_S3_REGION}
+          command: |
+            tar -czf build.tar.gz build
+            aws s3 sync build.tar.gz s3://${AWS_S3_BUCKET}/web-dist/${CIRCLE_TAG} --region ${AWS_S3_REGION}
 
 workflows:
   version: 2
