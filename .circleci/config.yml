@@ -37,7 +37,7 @@ jobs:
           name: Deploy to S3
           command: |
             tar -czf build.tar.gz build
-            aws s3 sync build.tar.gz s3://${AWS_S3_BUCKET}/web-dist/${CIRCLE_TAG} --region ${AWS_S3_REGION}
+            aws s3 cp build.tar.gz s3://${AWS_S3_BUCKET}/web-dist/${CIRCLE_TAG}.tar.gz --region ${AWS_S3_REGION}
 
 workflows:
   version: 2
