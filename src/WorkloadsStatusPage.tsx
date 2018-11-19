@@ -1,11 +1,16 @@
+
 import moment from "moment";
 import React, { Component } from 'react';
+import url from "url";
 
-import WorkloadStatusRow from './WorkloadStatusRow'
+import WorkloadsStatusResolution, {
+  defaultResolution,
+  getDurationByResolution
+} from "./WorkloadsStatusResolution"
+import WorkloadStatusTable from "./WorkloadStatusTable"
 import { IWorkloadStatus } from "./workloadTypes"
 
 import "./WorkloadsStatusPage.css"
-import { stat } from "fs";
 
 interface IProps {
   match: {
@@ -19,6 +24,7 @@ interface IState {
   err?: Error,
   isLoading: boolean,
   name: string,
+  resolution: number,
   workload?: IWorkloadStatus
 }
 
@@ -30,18 +36,22 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
       err: undefined,
       isLoading: true,
       name: props.match.params.name,
+      resolution: defaultResolution,
       workload: undefined
     };
+
+    this.onResolutionChange = this.onResolutionChange.bind(this);
   }
 
   public componentDidMount() {
-    this.fetchData(this.state.name);
+    this.fetchData();
   }
 
   public render() {
     const { err, isLoading, workload } = this.state;
 
-    const startDate = workload && workload.statuses ?
+    const startDate = workload && workload.statuses &&
+      workload.statuses.length ?
       moment(workload.statuses[0].date).format('MMMM Do YYYY')
       : null;
 
@@ -50,52 +60,18 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
         <div className="col-12">
           <h1>Workload Status</h1>
 
+          <WorkloadsStatusResolution
+            onChange={this.onResolutionChange}
+            value={this.state.resolution}
+          />
+
           {isLoading ? <p>Loading...</p> : null}
           {err ? <p>{err.message}</p> : null}
 
           {workload ?
             <div>
               <h2>{workload.name}</h2>
-
-              <table className="table mt-4">
-                <thead className="text-muted">
-                  <tr>
-                    <td>{startDate}</td>
-                    {workload.statuses.map((status) => {
-                      const date = moment(status.date).format('h:mm');
-                      return <td key={status.date.toString()}>{date}</td>;
-                    })}
-                  </tr>
-                </thead>
-                <thead>
-                  <tr><th colSpan={14}>Upstream</th></tr>
-                </thead>
-                <tbody>
-                  {workload.sources.map((source) =>
-                    <WorkloadStatusRow
-                      key={`source-${source.name}`}
-                      workload={source} />
-                  )}
-                </tbody>
-                <thead>
-                  <tr><th colSpan={14}>Destination</th></tr>
-                </thead>
-                <tbody>
-                  <WorkloadStatusRow
-                    workload={workload}
-                    style={{ backgroundColor: "#F5F5F5" }} />
-                </tbody>
-                <thead>
-                  <tr><th colSpan={14}>Downstream</th></tr>
-                </thead>
-                <tbody>
-                  {workload.destinations.map((destination) =>
-                    <WorkloadStatusRow
-                      key={`destination-${destination.name}`}
-                      workload={destination} />
-                  )}
-                </tbody>
-              </table>
+              <WorkloadStatusTable workload={workload} />
             </div>
             : null
           }
@@ -104,13 +80,34 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
     );
   }
 
-  private fetchData(name: string) : Promise<void> {
+  private onResolutionChange(event: React.FormEvent<HTMLSelectElement>) {
+    this.setState({ resolution: Number(event.currentTarget.value) }, () => {
+      this.fetchData();
+    });
+  }
+
+  private fetchData() : Promise<void> {
     this.setState({
       err: undefined,
-      isLoading: true
+      isLoading: true,
+      workload: undefined
     });
 
-    return fetch(`/api/v1/workloads/${name}/status`)
+    const { resolution } = this.state;
+    const duration = getDurationByResolution(resolution);
+    const end = new Date();
+    const start = moment(end).subtract(duration, 'h').toDate();
+
+    const uri = url.format({
+      pathname: `/api/v1/workloads/${this.state.name}/status`,
+      query: {
+        end: end.toISOString(),
+        start: start.toISOString(),
+        statusStep: resolution
+      }
+    });
+
+    return fetch(uri)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch resource: " + response.statusText);
