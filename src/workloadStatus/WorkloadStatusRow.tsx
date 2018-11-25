@@ -1,7 +1,8 @@
 
 import React from 'react';
+
+import { IWorkloadStatus } from "../types/workloadTypes"
 import WorkloadStatusCell from "./WorkloadStatusCell"
-import { IWorkloadStatus } from "./workloadTypes"
 
 interface IProps {
   workload: IWorkloadStatus,
@@ -16,7 +17,7 @@ function WorkloadStatusRow (props: IProps) {
       <td>{workload.name}</td>
       {workload.statuses.map((statusItem) =>
         <td key={statusItem.date}>
-          <WorkloadStatusCell status={statusItem} />
+          <WorkloadStatusCell workload={workload} status={statusItem} />
         </td>
       )}
     </tr>

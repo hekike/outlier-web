@@ -2,8 +2,8 @@
 import moment from "moment";
 import React from 'react';
 
+import { IWorkloadStatus } from "../types/workloadTypes"
 import WorkloadStatusRow from './WorkloadStatusRow'
-import { IWorkloadStatus } from "./workloadTypes"
 
 interface IProps {
   workload: IWorkloadStatus
@@ -17,7 +17,7 @@ function WorkloadStatusTable (props: IProps) {
     : null;
 
   return (
-    <table className="table mt-4">
+    <table className="table">
       <thead className="text-muted">
         <tr>
           <td>{startDate}</td>

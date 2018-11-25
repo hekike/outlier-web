@@ -1,9 +1,9 @@
 import React from 'react';
-import { IWorkloadStatusItem } from "./workloadTypes"
-
-import "./Tooltip.css"
+import { IWorkloadStatus, IWorkloadStatusItem } from "../types/workloadTypes";
+import WorkloadStatusCellTooltip from "./WorkloadStatusCellTooltip";
 
 interface IProps {
+  workload: IWorkloadStatus
   status: IWorkloadStatusItem
 }
 
@@ -23,25 +23,14 @@ function WorkloadStatusCell (props: IProps) {
 
   className += " tooltip-top";
 
-  const tooltip = `
-    Avg: ${round(status.avg)} ms
-    Median: ${round(status.median)} ms
-    Approx. Median: ${round(status.approximateMedian)} ms`;
-
   // Text
   const statusText = props.status.status === "unknown"
     ? "-"
     : props.status.status;
 
-  return <span className={className} data-tooltip={tooltip}>{statusText}</span>;
-}
-
-function round(value?: number): number|undefined {
-  if (value === undefined) {
-    return value;
-  }
-
-  return Math.round(value * 100) / 100;
+  return <WorkloadStatusCellTooltip workload={props.workload} status={props.status}>
+      <span className={className}>{statusText}</span>
+    </WorkloadStatusCellTooltip>;
 }
 
 export default WorkloadStatusCell;

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-import { IWorkload } from "./workloadTypes"
+import { IWorkload } from "../types/workloadTypes"
 
 interface IProps {}
 
@@ -33,25 +33,25 @@ class WorkloadsPage extends Component<IProps, IState> {
     const { isLoading, err, workloads } = this.state;
 
     return (
-      <div className="row">
-        <div className="col-12">
-          {isLoading ? <p>Loading...</p> : null}
-          {err ? <p>{err.message}</p> : null}
+      <main className="container">
+        <div className="row">
+          <div className="col-12">
+            {isLoading ? <p>Loading...</p> : null}
+            {err ? <p>{err.message}</p> : null}
 
-          <h1>Workloads</h1>
-
-          <div className="list-group">
-            {workloads.map((workload) =>
-              <Link
-                to={`/workloads/${workload.name}/status`}
-                className="list-group-item list-group-item-action"
-                key={workload.name}>
-              {workload.name}
-              </Link>
-            )}
+            <div className="list-group">
+              {workloads.map((workload) =>
+                <Link
+                  to={`/workloads/${workload.name}`}
+                  className="list-group-item list-group-item-action"
+                  key={workload.name}>
+                {workload.name}
+                </Link>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 

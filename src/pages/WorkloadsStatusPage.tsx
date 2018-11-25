@@ -3,14 +3,13 @@ import moment from "moment";
 import React, { Component } from 'react';
 import url from "url";
 
-import WorkloadsStatusResolution, {
+import { IWorkloadStatus } from "../types/workloadTypes"
+import WorkloadsStatusFilter from "../workloadStatus/WorkloadsStatusFilter"
+import {
   defaultResolution,
   getDurationByResolution
-} from "./WorkloadsStatusResolution"
-import WorkloadStatusTable from "./WorkloadStatusTable"
-import { IWorkloadStatus } from "./workloadTypes"
-
-import "./WorkloadsStatusPage.css"
+} from "../workloadStatus/WorkloadsStatusResolution"
+import WorkloadStatusTable from "../workloadStatus/WorkloadStatusTable"
 
 interface IProps {
   match: {
@@ -21,6 +20,7 @@ interface IProps {
 }
 
 interface IState {
+  endDate: Date,
   err?: Error,
   isLoading: boolean,
   name: string,
@@ -33,6 +33,7 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
     super(props);
 
     this.state = {
+      endDate: new Date(),
       err: undefined,
       isLoading: true,
       name: props.match.params.name,
@@ -40,6 +41,7 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
       workload: undefined
     };
 
+    this.onEndDateChange = this.onEndDateChange.bind(this);
     this.onResolutionChange = this.onResolutionChange.bind(this);
   }
 
@@ -50,38 +52,47 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
   public render() {
     const { err, isLoading, workload } = this.state;
 
-    const startDate = workload && workload.statuses &&
-      workload.statuses.length ?
-      moment(workload.statuses[0].date).format('MMMM Do YYYY')
-      : null;
-
     return (
-      <div className="row">
-        <div className="col-12">
-          <h1>Workload Status</h1>
-
-          <WorkloadsStatusResolution
-            onChange={this.onResolutionChange}
-            value={this.state.resolution}
-          />
-
-          {isLoading ? <p>Loading...</p> : null}
-          {err ? <p>{err.message}</p> : null}
-
-          {workload ?
-            <div>
-              <h2>{workload.name}</h2>
-              <WorkloadStatusTable workload={workload} />
-            </div>
-            : null
-          }
+      <main className="container">
+        <div className="row">
+          <div className="col-7">
+            {isLoading
+                ? <p>Loading...</p>
+                : <h2>{workload ? workload.name : ''}</h2>}
+          </div>
+          <div className="col-5">
+            <WorkloadsStatusFilter
+              className="mt-1"
+              onResolutionChange={this.onResolutionChange}
+              resolution={this.state.resolution}
+              onEndDateChange={this.onEndDateChange}
+              endDate={this.state.endDate}
+            />
+          </div>
         </div>
-      </div>
+
+        <div className="row mt-2">
+          <div className="col">
+            {err ? <p>{err.message}</p> : null}
+
+            {workload
+              ? <WorkloadStatusTable workload={workload} />
+              : null
+            }
+          </div>
+        </div>
+      </main>
     );
   }
 
-  private onResolutionChange(event: React.FormEvent<HTMLSelectElement>) {
-    this.setState({ resolution: Number(event.currentTarget.value) }, () => {
+  private onEndDateChange(endDate: Date) {
+    this.setState({ endDate }, () => {
+      this.fetchData();
+    });
+  }
+
+  private onResolutionChange(resolution: number) {
+    this.setState({ resolution }, () => {
       this.fetchData();
     });
   }
@@ -93,16 +104,15 @@ class WorkloadsStatusPage extends Component<IProps, IState> {
       workload: undefined
     });
 
-    const { resolution } = this.state;
+    const { resolution, endDate } = this.state;
     const duration = getDurationByResolution(resolution);
-    const end = new Date();
-    const start = moment(end).subtract(duration, 'h').toDate();
+    const startDate = moment(endDate).subtract(duration, 'h').toDate();
 
     const uri = url.format({
       pathname: `/api/v1/workloads/${this.state.name}/status`,
       query: {
-        end: end.toISOString(),
-        start: start.toISOString(),
+        end: endDate.toISOString(),
+        start: startDate.toISOString(),
         statusStep: resolution
       }
     });
